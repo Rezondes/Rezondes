@@ -9,7 +9,7 @@ Currently working as Systems analyst and Application developer.
 Skills = [
   "C#",
   ".NET Core",
-  "ASP .NET Core",
+  "ASP.NET Core",
   "Entity Framework",
   "MySQL",
   "Javascript",
