@@ -22,7 +22,7 @@ Skills = [
   "Linux (Ubuntu, Debian)"
 ]
 
-Learing = [
+Learning = [
   "Java",
   "Springboot"
 ]
