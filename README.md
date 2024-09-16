@@ -18,7 +18,7 @@ Skills = [
   "Python",
   "React",
   "Typescript",
-  "Docker",
+  "Docker (Basics)",
   "Linux (Ubuntu, Debian)"
 ]
 
