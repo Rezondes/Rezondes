@@ -11,12 +11,20 @@ Skills = [
   "C#",
   ".NET Core",
   "ASP.NET Core",
+  "Blazor",
   "Entity Framework",
   "MySQL",
   "Javascript",
   "Python",
   "React",
-  "Typescript"
+  "Typescript",
+  "Docker",
+  "Linux (Ubuntu, Debian)"
+]
+
+Learing = [
+  "Java",
+  "Springboot"
 ]
 ```
 
