@@ -23,6 +23,7 @@ Skills = [
 ]
 
 Learning = [
+  "C++",
   "Java",
   "Springboot"
 ]
