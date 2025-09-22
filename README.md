@@ -23,9 +23,7 @@ Skills = [
 ]
 
 Learning = [
-  "C++",
-  "Java",
-  "Springboot"
+  "Flutter"
 ]
 ```
 
