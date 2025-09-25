@@ -26,5 +26,3 @@ Learning = [
   "Flutter"
 ]
 ```
-
-Founder of [Cops and Crimes](https://copsandcrimes.de). A Multiplayer Minigame Server based on [alt:V](https://altv.mp/#/)
