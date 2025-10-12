@@ -19,10 +19,7 @@ Skills = [
   "React",
   "Typescript",
   "Docker (Basics)",
-  "Linux (Ubuntu, Debian)"
-]
-
-Learning = [
+  "Linux (Ubuntu, Debian)",
   "Flutter"
 ]
 ```
