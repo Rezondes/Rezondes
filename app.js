@@ -73,6 +73,83 @@ const rain = (() => {
 
 rain.on();
 
+// --- 3D-Monitor (nur Desktop und Tablet) -----------------------------------------
+const wide = matchMedia("(min-width: 720px)");
+
+// Jedes .box3d bekommt Seiten, Deckel, Boden und Rückwand; die Vorderseite ist das Element selbst
+document.querySelectorAll(".box3d").forEach(box => {
+  for (const side of ["l", "r", "t", "b", "k"]) box.append(Object.assign(document.createElement("div"), { className: `face ${side}` }));
+});
+
+// Drehen per Ziehen neben dem Bildschirm; der Winkel läuft dem Ziel weich hinterher
+const tilt = (() => {
+  const model = $("#model");
+  const MAX = 40;
+  let current = 0;
+  let target = 0;
+  let frame = 0;
+  let dragX = null;
+  let dragStart = 0;
+
+  function animate() {
+    current += (target - current) * 0.12;
+    if (Math.abs(target - current) < 0.01) current = target;
+    model.style.setProperty("--ry", `${current.toFixed(2)}deg`);
+    frame = current === target ? 0 : requestAnimationFrame(animate);
+  }
+
+  function set(deg) {
+    target = Math.max(-MAX, Math.min(MAX, deg));
+    if (!frame) frame = requestAnimationFrame(animate);
+  }
+
+  // Ziehen geht überall, auch auf Knöpfen; gedreht wird erst ab 5 px Bewegung,
+  // und dann löst der Klick am Ende nichts aus. Ausgenommen: Eingabe und Scrollbalken.
+  const onScrollbar = e => e.target === out && e.offsetX > out.clientWidth;
+  const grabbable = e => wide.matches && !e.target.closest("input") && !onScrollbar(e);
+  let dragging = false;
+
+  addEventListener("pointerdown", e => {
+    dragging = false;
+    if (e.button !== 0 || !grabbable(e)) return;
+    dragX = e.clientX;
+    dragStart = target;
+  });
+  addEventListener("pointermove", e => {
+    if (dragX === null) return;
+    if (!dragging && Math.abs(e.clientX - dragX) < 5) return;
+    dragging = true;
+    document.body.classList.add("dragging");
+    set(dragStart + (e.clientX - dragX) * 0.15);
+  });
+  const end = () => { dragX = null; document.body.classList.remove("dragging"); };
+  addEventListener("pointerup", end);
+  addEventListener("pointercancel", () => { dragging = false; end(); });
+  addEventListener("click", e => {
+    if (!dragging) return;
+    dragging = false;
+    e.stopPropagation();
+    e.preventDefault();
+  }, true);
+  addEventListener("dblclick", e => { if (grabbable(e) && !e.target.closest("button, a")) set(0); });
+
+  function snap(deg) {
+    current = target = deg;
+    model.style.setProperty("--ry", `${deg}deg`);
+  }
+
+  return { set, snap, MAX };
+})();
+
+const crt = {
+  get on() { return rig.classList.contains("crt"); },
+  set(on) {
+    rig.classList.toggle("crt", on);
+    try { localStorage.setItem("crt", on ? "1" : "0"); } catch {}
+  },
+};
+try { crt.set(localStorage.getItem("crt") !== "0"); } catch { crt.set(true); }
+
 // --- Ausgabe -------------------------------------------------------------------
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -95,6 +172,7 @@ function link(href, text, className) {
   a.href = href;
   a.target = "_blank";
   a.rel = "noopener";
+  a.draggable = false;
   return a;
 }
 
@@ -224,6 +302,7 @@ const commands = {
       line("VERFÜGBARE BEFEHLE:");
       for (const [name, cmd] of Object.entries(commands)) line(`  ${(cmd.usage ?? name).padEnd(18)}${cmd.desc}`);
       line(">> Pfeiltasten blättern im Verlauf, Tab ergänzt Befehle.", "muted");
+      if (wide.matches) line(">> Neben dem Bildschirm ziehen dreht den Monitor, Doppelklick stellt ihn gerade.", "muted");
     },
   },
   whoami: { desc: "Wer ich bin", busy: "LESE AKTE", run: () => profile.forEach(([k, v]) => dossier(k, v)) },
@@ -246,6 +325,27 @@ const commands = {
       const on = arg ? arg === "on" : !rain.running;
       on ? rain.on() : rain.off();
       line(`> MATRIX: ${on ? "AN" : "AUS"}`);
+    },
+  },
+  crt: {
+    usage: "crt [on|off]",
+    desc: "Röhrenmonitor-Effekt an oder aus",
+    run([arg]) {
+      if (!wide.matches) return line(">> Nur auf Desktop und Tablet verfügbar.");
+      const on = arg ? arg === "on" : !crt.on;
+      crt.set(on);
+      line(`> CRT: ${on ? "AN" : "AUS"}`);
+    },
+  },
+  rotate: {
+    usage: "rotate <grad>",
+    desc: `Dreht den Monitor (-${tilt.MAX} bis ${tilt.MAX}, 0 = gerade)`,
+    run([arg]) {
+      if (!wide.matches) return line(">> Nur auf Desktop und Tablet verfügbar.");
+      const deg = Number(arg ?? 0);
+      if (!Number.isFinite(deg)) return error("Winkel muss eine Zahl sein, zum Beispiel 'rotate -20'.");
+      tilt.set(deg);
+      line(`> WINKEL: ${Math.max(-tilt.MAX, Math.min(tilt.MAX, deg))}°`);
     },
   },
   clear: { desc: "Leert den Bildschirm", run: () => out.replaceChildren() },
@@ -307,6 +407,7 @@ function skipIntro() {
   skipping = true;
   skipSignal();
   document.body.classList.add("instant");
+  tilt.snap(0);
   rig.classList.add("zoomed", "on");
   screen.classList.add("on");
 }
@@ -344,8 +445,10 @@ async function boot() {
 }
 
 async function intro() {
+  if (wide.matches) tilt.snap(-28);
   await sleep(300);
   rig.classList.add("zoomed");
+  tilt.set(0);
   await sleep(1500);
   rig.classList.add("on");
   screen.classList.add("powering");

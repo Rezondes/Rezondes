@@ -72,9 +72,12 @@ a:hover, a:focus-visible { background: var(--green); color: var(--black); outlin
 .led { position: absolute; bottom: 14px; right: var(--bezel); width: 8px; height: 8px; border: 1px solid var(--green-dim); }
 .rig.on .led { background: var(--green); }
 
+.model { position: absolute; inset: 0; }
+
 .stand { position: absolute; top: 100%; left: 50%; width: 36%; height: 18vh; transform: translateX(-50%); }
-.stand::before { content: ""; position: absolute; left: 40%; width: 20%; top: 0; bottom: 24px; border: 1px solid var(--green-line); border-top: none; background: var(--black); }
-.stand::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 24px; border: 1px solid var(--green-dim); background: var(--black); }
+.neck { position: absolute; left: 40%; width: 20%; top: 0; bottom: 24px; border: 1px solid var(--green-line); border-top: none; background: var(--black); }
+.base { position: absolute; left: 0; right: 0; bottom: 0; height: 24px; border: 1px solid var(--green-dim); background: var(--black); }
+.tube { display: none; }
 
 /* --- Bildschirm ------------------------------------------------------------ */
 .screen {
@@ -145,7 +148,99 @@ body:not(.intro) .skip { display: none; }
 /* Übersprungenes Intro: alles sofort im Endzustand */
 .instant, .instant * { transition: none !important; animation: none !important; }
 
+/* --- 3D-Gehäuse und CRT-Modus: nur Desktop und Tablet ---------------------- */
+@media (min-width: 720px) {
+  .rig {
+    --w: min(1100px, 90vw);
+    --d1: 36px;               /* Tiefe des Gehäuses */
+    --d2: 0px;                /* Tiefe der Bildröhre dahinter (nur CRT) */
+    --case-top: #12331a;
+    --case-side: #0b240f;
+    --case-bottom: #061408;
+    width: var(--w);
+    perspective: 1800px;
+    transition: transform 1.4s cubic-bezier(0.6, 0, 0.2, 1), width 0.4s, height 0.4s, top 0.4s;
+  }
+
+  .model { transform-style: preserve-3d; transform: rotateY(var(--ry, 0deg)); }
+  .box3d { transform-style: preserve-3d; }
+  .monitor, .model, .stand { cursor: grab; }
+  .screen { user-select: none; }
+  .screen button, .screen a { cursor: pointer; -webkit-user-drag: none; }
+  .input-line input { cursor: text; }
+  #rain { cursor: grab; }
+  body.dragging, body.dragging * { cursor: grabbing !important; user-select: none; }
+
+  /* Flächen eines Quaders, die JS an jedes .box3d hängt; Tiefe aus --d */
+  .face { position: absolute; border: 1px solid var(--green-dim); pointer-events: none; background: var(--case-side); }
+  .face.l { top: 0; left: 0; width: var(--d); height: 100%; transform-origin: left center; transform: rotateY(90deg); }
+  .face.r { top: 0; right: 0; width: var(--d); height: 100%; transform-origin: right center; transform: rotateY(-90deg); }
+  .face.t { top: 0; left: 0; width: 100%; height: var(--d); transform-origin: center top; transform: rotateX(-90deg); background: var(--case-top); }
+  .face.b { bottom: 0; left: 0; width: 100%; height: var(--d); transform-origin: center bottom; transform: rotateX(90deg); background: var(--case-bottom); }
+  .face.k { inset: 0; transform: translateZ(calc(-1 * var(--d))) rotateY(180deg); background: var(--case-bottom); }
+
+  .monitor { --d: var(--d1); }
+  .stand { transform-style: preserve-3d; }
+  .neck { --d: 40px; transform: translateZ(calc((var(--d1) + var(--d2)) * -0.5 + 20px)); }
+  .base { --d: calc(var(--d1) + var(--d2) + 40px); transform: translateZ(40px); }
+
+  /* CRT: 4:3, tiefes Gehäuse mit Bildröhre, Scanlines, Glühen, gewölbtes Glas */
+  .rig.crt {
+    --w: min(90vw, 101.33vh, 1100px);
+    --d1: calc(var(--w) * 0.1);
+    --d2: calc(var(--w) * 0.6);
+    --bezel: 44px;
+    height: calc(var(--w) * 0.75);
+    top: max(4vh, calc((100vh - var(--w) * 0.75) / 2 - 5vh));
+  }
+  .rig.crt .tube {
+    display: block;
+    position: absolute;
+    left: 9%;
+    right: 9%;
+    top: 7%;
+    bottom: 12%;
+    --d: var(--d2);
+    transform: translateZ(calc(-1 * var(--d1)));
+  }
+  .rig.crt .tube .face.k { background: repeating-linear-gradient(90deg, var(--case-bottom) 0 10px, var(--black) 10px 14px); }
+  .rig.crt .stand { height: 7vh; width: 50%; }
+  .rig.crt .neck { left: 30%; width: 40%; }
+  .rig.crt .brand { font-size: 14px; bottom: 14px; }
+
+  .rig.crt .screen {
+    border-radius: 28px / 22px;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 0 4px rgba(57, 255, 20, 0.55);
+  }
+  .rig.crt .screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px),
+      radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  }
+  /* Langsam durchlaufender heller Balken wie bei einer alten Röhre */
+  .rig.crt .screen::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 25%;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(57, 255, 20, 0.05), transparent);
+    animation: roll 7s linear infinite;
+  }
+  @keyframes roll { from { top: -25%; } to { top: 100%; } }
+}
+
 @media (max-width: 719px) {
+  .face, .wide-only { display: none; }
   :root { --bezel: 8px; }
   .rig { inset: 0; width: auto; height: auto; transform: scale(0.42); }
   body { font-size: 14px; }

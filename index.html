@@ -15,7 +15,9 @@
   <canvas id="rain" aria-hidden="true"></canvas>
 
   <div id="rig" class="rig">
-    <div class="monitor">
+   <div id="model" class="model">
+    <div class="tube box3d" aria-hidden="true"></div>
+    <div class="monitor box3d">
       <div id="screen" class="screen">
         <div class="flash" aria-hidden="true"></div>
         <div id="out" class="out" aria-live="polite"></div>
@@ -30,12 +32,17 @@
           <button class="btn" data-cmd="projects" disabled>[ PROJEKTE ]</button>
           <button class="btn" data-cmd="contact" disabled>[ KONTAKT ]</button>
           <button class="btn" data-cmd="clear" disabled>[ CLEAR ]</button>
+          <button class="btn wide-only" data-cmd="crt" disabled>[ CRT ]</button>
         </nav>
       </div>
       <span class="brand" aria-hidden="true">REZONDES</span>
       <span class="led" aria-hidden="true"></span>
     </div>
-    <div class="stand" aria-hidden="true"></div>
+    <div class="stand" aria-hidden="true">
+      <div class="neck box3d"></div>
+      <div class="base box3d"></div>
+    </div>
+   </div>
   </div>
 
   <button id="skip" class="btn skip">[ ESC ] ÜBERSPRINGEN</button>
