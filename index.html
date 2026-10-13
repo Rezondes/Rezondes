@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REZONDES // Portfolio</title>
+  <meta name="description" content="Portfolio von Rezondes: Anwendungsentwicklung mit C# und .NET.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23000'/%3E%3Ctext x='8' y='13' font-family='monospace' font-size='13' text-anchor='middle' fill='%2339FF14'%3ER%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="intro">
+  <canvas id="rain" aria-hidden="true"></canvas>
+
+  <div id="rig" class="rig">
+    <div class="monitor">
+      <div id="screen" class="screen">
+        <div class="flash" aria-hidden="true"></div>
+        <div id="out" class="out" aria-live="polite"></div>
+        <form id="cmd" class="input-line" autocomplete="off">
+          <label for="cmd-input">root@rezondes:~$</label>
+          <input id="cmd-input" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" readonly>
+        </form>
+        <nav class="keys" aria-label="Befehle">
+          <button class="btn" data-cmd="help" disabled>[ HELP ]</button>
+          <button class="btn" data-cmd="whoami" disabled>[ WHOAMI ]</button>
+          <button class="btn" data-cmd="skills" disabled>[ SKILLS ]</button>
+          <button class="btn" data-cmd="projects" disabled>[ PROJEKTE ]</button>
+          <button class="btn" data-cmd="contact" disabled>[ KONTAKT ]</button>
+          <button class="btn" data-cmd="clear" disabled>[ CLEAR ]</button>
+        </nav>
+      </div>
+      <span class="brand" aria-hidden="true">REZONDES</span>
+      <span class="led" aria-hidden="true"></span>
+    </div>
+    <div class="stand" aria-hidden="true"></div>
+  </div>
+
+  <button id="skip" class="btn skip">[ ESC ] ÜBERSPRINGEN</button>
+
+<pre id="logo-src" hidden>
+ ___   ___   ____   ___    _  _   ___    ___   ___
+| _ \ | __| |_  /  / _ \  | \| | |   \  | __| / __|
+|   / | _|   / /  | (_) | | .` | | |) | | _|  \__ \
+|_|_\ |___| /___|  \___/  |_|\_| |___/  |___| |___/
+</pre>
+
+  <noscript>
+    <p>REZONDES // C# .NET Developer. Projekte:
+      <a href="https://rezondes.github.io/OpenVoiceSpeak/">OpenVoiceSpeak</a>,
+      <a href="https://rezondes.github.io/PersonalEinsatzPlanung">PersonalEinsatzPlanung</a>,
+      <a href="https://rezondes.github.io/ClaudeDeck/">ClaudeDeck</a>,
+      <a href="https://github.com/Rezondes">GitHub</a>.</p>
+  </noscript>
+
+  <script src="app.js"></script>
+</body>
+</html>

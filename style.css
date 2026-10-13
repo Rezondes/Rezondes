@@ -1,0 +1,157 @@
+/* Farben und Schrift nach WiDaO BRANDSTYLE.md: Schwarz, Phosphorgrün, eine Monospace-Schrift, keine Rundungen. */
+:root {
+  --black: #000000;
+  --green: #39FF14;
+  --green-dim: #1E9E0F;
+  --green-line: #0E4D07;
+  --bezel: 24px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--black);
+  color: var(--green);
+  font: 16px/1.25 "Share Tech Mono", "Fira Mono", monospace;
+}
+
+#rain { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+#rain.off { visibility: hidden; }
+
+a { color: var(--green); }
+a:hover, a:focus-visible { background: var(--green); color: var(--black); outline: none; }
+
+.muted { color: var(--green-dim); }
+.error { background: var(--green); color: var(--black); padding: 0 8px; justify-self: start; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--green);
+  background: var(--black);
+  color: var(--green);
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+}
+.btn.primary, .btn:hover, .btn:focus-visible { background: var(--green); color: var(--black); }
+.btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.btn:disabled { border-color: var(--green-dim); color: var(--green-dim); background: var(--black); cursor: default; }
+
+/* --- Monitor: startet klein, zoomt auf Bildschirmgrösse ------------------- */
+/* Desktop und Tablet: Monitor mit Standfuss, Matrix-Regen bleibt rundherum sichtbar.
+   Mobile (siehe Media Query unten): Monitor füllt den ganzen Bildschirm. */
+.rig {
+  position: fixed;
+  z-index: 1;
+  top: 4vh;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: min(1100px, 90vw);
+  height: 76vh;
+  transform: scale(0.35);
+  transition: transform 1.4s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.rig.zoomed { transform: none; }
+
+.monitor {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  padding: var(--bezel) var(--bezel) calc(var(--bezel) + 16px);
+  background: var(--black);
+  border: 1px solid var(--green-dim);
+}
+.brand { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--green-dim); }
+.led { position: absolute; bottom: 14px; right: var(--bezel); width: 8px; height: 8px; border: 1px solid var(--green-dim); }
+.rig.on .led { background: var(--green); }
+
+.stand { position: absolute; top: 100%; left: 50%; width: 36%; height: 18vh; transform: translateX(-50%); }
+.stand::before { content: ""; position: absolute; left: 40%; width: 20%; top: 0; bottom: 24px; border: 1px solid var(--green-line); border-top: none; background: var(--black); }
+.stand::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 24px; border: 1px solid var(--green-dim); background: var(--black); }
+
+/* --- Bildschirm ------------------------------------------------------------ */
+.screen {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--green-line);
+  background: var(--black);
+  overflow: hidden;
+}
+.screen.on { background: rgba(0, 0, 0, 0.78); }
+.screen > :not(.flash) { visibility: hidden; }
+.screen.on > :not(.flash) { visibility: visible; }
+
+/* Einschalten: eine Linie in der Mitte, die sich aufzieht und verlischt */
+.flash { position: absolute; inset: 0; z-index: 2; background: var(--green); opacity: 0; pointer-events: none; transform: scale(0, 0.004); }
+.screen.powering .flash { animation: power 0.7s ease-out forwards; }
+@keyframes power {
+  0%   { opacity: 1; transform: scale(0, 0.004); }
+  40%  { opacity: 1; transform: scale(1, 0.004); }
+  70%  { opacity: 0.6; transform: scale(1, 1); }
+  100% { opacity: 0; transform: scale(1, 1); }
+}
+
+.out {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  scrollbar-color: var(--green) var(--black);
+}
+.out [hidden] { display: none !important; }
+.out .echo { margin-top: 12px; }
+.out .logo { font: inherit; line-height: 18px; white-space: pre; overflow-x: auto; margin-bottom: 8px; }
+.out .row-btn {
+  font: inherit;
+  text-align: left;
+  white-space: pre;
+  background: none;
+  border: none;
+  color: var(--green);
+  min-height: 32px;
+  padding: 0 8px 0 0;
+  cursor: pointer;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.out .row-btn:hover, .out .row-btn:focus-visible { background: var(--green); color: var(--black); outline: none; }
+.out .row-btn::before { content: "  "; }
+.out .row-btn:hover::before, .out .row-btn:focus-visible::before { content: "> "; }
+.out .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+
+.input-line { display: flex; gap: 8px; align-items: center; padding: 8px 16px; border-top: 1px solid var(--green-line); }
+.input-line label { white-space: nowrap; }
+.input-line input { flex: 1; min-width: 0; min-height: 32px; background: none; border: none; outline: none; color: var(--green); caret-color: var(--green); font: inherit; }
+
+.keys { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 16px 12px; border-top: 1px solid var(--green); }
+
+.skip { position: fixed; z-index: 3; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 14px; }
+body:not(.intro) .skip { display: none; }
+
+/* Übersprungenes Intro: alles sofort im Endzustand */
+.instant, .instant * { transition: none !important; animation: none !important; }
+
+@media (max-width: 719px) {
+  :root { --bezel: 8px; }
+  .rig { inset: 0; width: auto; height: auto; transform: scale(0.42); }
+  body { font-size: 14px; }
+  .out { padding: 12px; }
+  .out .logo { font-size: 8px; line-height: 10px; }
+  .input-line, .keys { padding-left: 12px; padding-right: 12px; }
+  .keys .btn { padding: 8px 10px; }
+  .brand { display: none; }
+}

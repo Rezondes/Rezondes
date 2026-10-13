@@ -1,0 +1,34 @@
+[
+  {
+    "name": "OpenVoiceSpeak",
+    "url": "https://rezondes.github.io/OpenVoiceSpeak/",
+    "repo": "https://github.com/Rezondes/OpenVoiceSpeak",
+    "stack": ["C#", ".NET", "Docker", "Opus", "TLS", "AES-GCM"],
+    "status": "IN ENTWICKLUNG",
+    "description": "Selbst hostbarer Voice-Chat in der Art von Mumble oder TeamSpeak. Ein Server, mehrere Channels, serverweites Rechtesystem, Channel-Linking und Identität per Schlüsselpaar statt Accounts. Sprache als Opus über verschlüsseltes UDP, Server im Docker-Container, Client unter Windows."
+  },
+  {
+    "name": "ClaudeDeck",
+    "url": "https://rezondes.github.io/ClaudeDeck/",
+    "repo": "https://github.com/Rezondes/ClaudeDeck",
+    "stack": ["TypeScript", "Stream Deck SDK", "Claude Code"],
+    "status": "IN ENTWICKLUNG",
+    "description": "Zeigt auf dem Elgato Stream Deck, was Claude Code gerade macht, und erlaubt oder lehnt Anfragen per Tastendruck ab."
+  },
+  {
+    "name": "PersonalEinsatzPlanung",
+    "url": "https://rezondes.github.io/PersonalEinsatzPlanung",
+    "repo": "https://github.com/Rezondes/PersonalEinsatzPlanung",
+    "stack": ["TypeScript", "IndexedDB"],
+    "status": "IN ENTWICKLUNG",
+    "description": "Web-App zur digitalen Personaleinsatzplanung für kleine Einzelhandelsfilialen. Wochen- und Monatsplanung, automatische Prüfung nach ArbZG, Urlaubs- und Krankheitsverwaltung, Druckexport. Ohne Server: alle Daten bleiben lokal im Browser."
+  },
+  {
+    "name": "Rezondes Enhanced Arma",
+    "url": "https://rea.rezondes.net",
+    "repo": "https://github.com/Rezondes-Enhanced-Arma",
+    "stack": ["Enforce Script", "Enfusion", "Arma Reforger Workbench"],
+    "status": "AKTIV",
+    "description": "Sammlung von Mods für Arma Reforger auf der Enfusion-Engine, von kleinen Quality-of-Life-Anpassungen bis zu spezialisierten Erweiterungen. Mod-Katalog mit Workshop-Links und Dokumentation gemeinsamer Bibliotheken wie REA Core."
+  }
+]
