@@ -55,10 +55,12 @@ a:hover, a:focus-visible { background: var(--green); color: var(--black); outlin
   margin: 0 auto;
   width: min(1100px, 90vw);
   height: 76vh;
-  transform: scale(0.35);
-  transition: transform 1.4s cubic-bezier(0.6, 0, 0.2, 1);
+  /* Startet winzig und unsichtbar, fliegt dann in einem Zug heran (kein Stillstand) */
+  transform: scale(0.06);
+  opacity: 0;
+  transition: transform 2.2s cubic-bezier(0.45, 0, 0.2, 1), opacity 0.6s;
 }
-.rig.zoomed { transform: none; }
+.rig.zoomed { transform: none; opacity: 1; }
 
 .monitor {
   position: absolute;
@@ -149,17 +151,35 @@ body:not(.intro) .skip { display: none; }
 .instant, .instant * { transition: none !important; animation: none !important; }
 
 /* --- 3D-Gehäuse und CRT-Modus: nur Desktop und Tablet ---------------------- */
+/* Registrierte Variablen, damit der Wechsel 16:9 <-> 4:3 weich animiert */
+@property --w { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --ratio { syntax: "<number>"; inherits: true; initial-value: 0.5625; }
+@property --k1 { syntax: "<number>"; inherits: true; initial-value: 0.035; }
+@property --k2 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --bezel { syntax: "<length>"; inherits: true; initial-value: 24px; }
+@property --crt { syntax: "<number>"; inherits: true; initial-value: 0; }
+
 @media (min-width: 720px) {
   .rig {
-    --w: min(1100px, 90vw);
-    --d1: 36px;               /* Tiefe des Gehäuses */
-    --d2: 0px;                /* Tiefe der Bildröhre dahinter (nur CRT) */
+    /* Flach: moderner 16:9-Bildschirm mit dünnem Gehäuse */
+    --ratio: 0.5625;
+    --w: min(1100px, 90vw, calc(76vh / 0.5625));
+    --k1: 0.035;              /* Gehäusetiefe relativ zur Breite */
+    --k2: 0;                  /* Tiefe der Bildröhre dahinter */
+    --crt: 0;                 /* 0..1, blendet Scanlines und Glühen ein */
+    --d1: calc(var(--w) * var(--k1));
+    --d2: calc(var(--w) * var(--k2));
     --case-top: #12331a;
     --case-side: #0b240f;
     --case-bottom: #061408;
     width: var(--w);
+    height: calc(var(--w) * var(--ratio));
+    top: max(3vh, calc((100vh - var(--w) * var(--ratio)) / 2 - 7vh));
     perspective: 1800px;
-    transition: transform 1.4s cubic-bezier(0.6, 0, 0.2, 1), width 0.4s, height 0.4s, top 0.4s;
+    transition:
+      transform 2.2s cubic-bezier(0.45, 0, 0.2, 1), opacity 0.6s,
+      --w 0.9s ease-in-out, --ratio 0.9s ease-in-out, --k1 0.9s ease-in-out, --k2 0.9s ease-in-out,
+      --bezel 0.9s ease-in-out, --crt 0.9s ease-in-out, top 0.9s ease-in-out;
   }
 
   .model { transform-style: preserve-3d; transform: rotateY(var(--ry, 0deg)); }
@@ -180,20 +200,22 @@ body:not(.intro) .skip { display: none; }
   .face.k { inset: 0; transform: translateZ(calc(-1 * var(--d))) rotateY(180deg); background: var(--case-bottom); }
 
   .monitor { --d: var(--d1); }
-  .stand { transform-style: preserve-3d; }
+  .stand { transform-style: preserve-3d; transition: height 0.9s ease-in-out, width 0.9s ease-in-out; }
+  .neck { transition: left 0.9s ease-in-out, width 0.9s ease-in-out; }
   .neck { --d: 40px; transform: translateZ(calc((var(--d1) + var(--d2)) * -0.5 + 20px)); }
   .base { --d: calc(var(--d1) + var(--d2) + 40px); transform: translateZ(40px); }
 
   /* CRT: 4:3, tiefes Gehäuse mit Bildröhre, Scanlines, Glühen, gewölbtes Glas */
   .rig.crt {
-    --w: min(90vw, 101.33vh, 1100px);
-    --d1: calc(var(--w) * 0.1);
-    --d2: calc(var(--w) * 0.6);
+    --ratio: 0.75;
+    --w: min(1100px, 90vw, calc(76vh / 0.75));
+    --k1: 0.1;
+    --k2: 0.6;
+    --crt: 1;
     --bezel: 44px;
-    height: calc(var(--w) * 0.75);
-    top: max(4vh, calc((100vh - var(--w) * 0.75) / 2 - 5vh));
   }
-  .rig.crt .tube {
+  /* Die Röhre ist immer da; im flachen Modus hat sie die Tiefe 0 und verschwindet im Gehäuse */
+  .tube {
     display: block;
     position: absolute;
     left: 9%;
@@ -203,17 +225,18 @@ body:not(.intro) .skip { display: none; }
     --d: var(--d2);
     transform: translateZ(calc(-1 * var(--d1)));
   }
-  .rig.crt .tube .face.k { background: repeating-linear-gradient(90deg, var(--case-bottom) 0 10px, var(--black) 10px 14px); }
+  .tube .face.k { background: repeating-linear-gradient(90deg, var(--case-bottom) 0 10px, var(--black) 10px 14px); }
   .rig.crt .stand { height: 7vh; width: 50%; }
   .rig.crt .neck { left: 30%; width: 40%; }
   .rig.crt .brand { font-size: 14px; bottom: 14px; }
 
-  .rig.crt .screen {
-    border-radius: 28px / 22px;
-    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9);
-    text-shadow: 0 0 4px rgba(57, 255, 20, 0.55);
+  .screen {
+    border-radius: calc(28px * var(--crt)) / calc(22px * var(--crt));
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, calc(0.9 * var(--crt)));
+    text-shadow: 0 0 4px rgba(57, 255, 20, calc(0.55 * var(--crt)));
   }
-  .rig.crt .screen::after {
+  .screen::after, .screen::before { opacity: var(--crt); }
+  .screen::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -225,7 +248,7 @@ body:not(.intro) .skip { display: none; }
       radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
   }
   /* Langsam durchlaufender heller Balken wie bei einer alten Röhre */
-  .rig.crt .screen::before {
+  .screen::before {
     content: "";
     position: absolute;
     left: 0;
@@ -242,7 +265,7 @@ body:not(.intro) .skip { display: none; }
 @media (max-width: 719px) {
   .face, .wide-only { display: none; }
   :root { --bezel: 8px; }
-  .rig { inset: 0; width: auto; height: auto; transform: scale(0.42); }
+  .rig { inset: 0; width: auto; height: auto; }
   body { font-size: 14px; }
   .out { padding: 12px; }
   .out .logo { font-size: 8px; line-height: 10px; }

@@ -40,26 +40,46 @@ const rain = (() => {
   const ctx = canvas.getContext("2d");
   const glyphs = "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789{}<>=;#ABCDEF";
   const size = 16;
+  const glyph = () => glyphs[(Math.random() * glyphs.length) | 0];
+  let rows = 0;
   let drops = [];
   let timer = null;
+
+  // Ein Tropfen pro Spalte: Kopf bei Zeile y, dahinter eine Spur, die nach oben hin verlischt.
+  // Startet oberhalb des Bildes, darum ist der Regen beim Laden leer und setzt nach und nach ein.
+  const newDrop = (spread = 1) => ({
+    y: -Math.random() * rows * spread,
+    speed: 0.5 + Math.random() * 0.6,
+    length: 8 + ((Math.random() * 22) | 0),
+    cells: [],
+  });
 
   function resize() {
     canvas.width = innerWidth;
     canvas.height = innerHeight;
-    drops = Array.from({ length: Math.ceil(canvas.width / size) }, () => Math.random() * (canvas.height / size));
+    rows = Math.ceil(canvas.height / size);
+    drops = Array.from({ length: Math.ceil(canvas.width / size) }, () => newDrop());
   }
 
+  // Jedes Bild wird komplett neu gezeichnet, darum bleibt kein grauer Rest stehen
   function frame() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = `${size}px "Share Tech Mono", monospace`;
-    for (let i = 0; i < drops.length; i++) {
-      const y = drops[i] * size;
-      ctx.fillStyle = Math.random() < 0.03 ? "#39FF14" : "#1E9E0F";
-      ctx.fillText(glyphs[(Math.random() * glyphs.length) | 0], i * size, y);
-      if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    }
+    drops.forEach((d, col) => {
+      const head = Math.floor(d.y);
+      d.y += d.speed;
+      if (Math.floor(d.y) !== head) d.cells[Math.floor(d.y)] = glyph();
+      if (Math.random() < 0.05 && head >= 0) d.cells[head - ((Math.random() * d.length) | 0)] = glyph();
+      for (let k = 0; k < d.length; k++) {
+        const row = head - k;
+        if (row < 0 || row >= rows || !d.cells[row]) continue;
+        ctx.globalAlpha = 1 - k / d.length;
+        ctx.fillStyle = k === 0 ? "#39FF14" : "#1E9E0F";
+        ctx.fillText(d.cells[row], col * size, (row + 1) * size);
+      }
+      if (head - d.length > rows) drops[col] = newDrop(0.5);
+    });
+    ctx.globalAlpha = 1;
   }
 
   addEventListener("resize", resize);
@@ -349,7 +369,14 @@ const commands = {
     },
   },
   clear: { desc: "Leert den Bildschirm", run: () => out.replaceChildren() },
-  reboot: { desc: "Startet das System neu", run: () => location.reload() },
+  reboot: {
+    desc: "Startet das Terminal neu",
+    busy: "FAHRE SYSTEM HERUNTER",
+    async run() {
+      await powerOnScreen();
+      await startTerminal();
+    },
+  },
 };
 
 const aliases = { ls: "projects", cat: "project", "?": "help", cls: "clear", about: "whoami" };
@@ -369,7 +396,9 @@ async function run(raw) {
   if (!cmd) return error(`Befehl nicht gefunden: ${name}. Alle Befehle mit 'help'.`);
   if (cmd.busy) await busy(cmd.busy);
   const before = out.children.length;
-  cmd.run(args);
+  const result = cmd.run(args);
+  // Befehle mit eigenem Ablauf (reboot) zeichnen selbst; alle anderen werden zeilenweise gedruckt
+  if (result instanceof Promise) return result;
   await reveal([...out.children].slice(before));
 }
 
@@ -418,7 +447,6 @@ addEventListener("keydown", e => {
   else { skipping = true; skipSignal(); }
 });
 $("#skip").addEventListener("click", skipIntro);
-rig.addEventListener("pointerdown", skipIntro);
 
 async function boot() {
   const lines = [
@@ -444,17 +472,24 @@ async function boot() {
   await sleep(600);
 }
 
-async function intro() {
-  if (wide.matches) tilt.snap(-28);
-  await sleep(300);
-  rig.classList.add("zoomed");
-  tilt.set(0);
-  await sleep(1500);
-  rig.classList.add("on");
+function setLocked(locked) {
+  input.readOnly = locked;
+  document.querySelectorAll("[data-cmd]").forEach(btn => { btn.disabled = locked; });
+}
+
+async function powerOnScreen() {
+  screen.classList.remove("on", "powering");
+  void screen.offsetWidth; // Animation neu starten
   screen.classList.add("powering");
   await sleep(450);
   screen.classList.add("on");
   await sleep(300);
+}
+
+// Terminal hochfahren: BIOS, Logo, erste Befehle. Läuft im Intro und bei 'reboot'.
+async function startTerminal() {
+  setLocked(true);
+  out.replaceChildren();
   await boot();
   out.replaceChildren();
   const logo = print(el("pre", "logo", $("#logo-src").textContent.replace(/^\n/, "")));
@@ -465,12 +500,22 @@ async function intro() {
   await sleep(700);
   await typeCommand("projects");
   line(">> Tippe 'help' für alle Befehle oder nutze die Tasten unten.");
+  setLocked(false);
+  if (matchMedia("(pointer: fine)").matches) input.focus();
+}
 
+// Monitor fliegt ohne Pause heran und dreht sich dabei gerade, dann geht der Bildschirm an
+async function intro() {
+  if (wide.matches) tilt.snap(-28);
+  await sleep(150);
+  rig.classList.add("zoomed");
+  tilt.set(0);
+  await sleep(2300);
+  rig.classList.add("on");
+  await powerOnScreen();
+  await startTerminal();
   resetSkip();
   document.body.classList.remove("intro", "instant");
-  input.readOnly = false;
-  document.querySelectorAll("[data-cmd]").forEach(btn => { btn.disabled = false; });
-  if (matchMedia("(pointer: fine)").matches) input.focus();
 }
 
 enqueue(intro);
