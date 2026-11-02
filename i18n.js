@@ -22,6 +22,7 @@ window.STRINGS = {
     ],
     status_active: "AKTIV",
     status_dev: "IN ENTWICKLUNG",
+    status_released: "VERÖFFENTLICHT",
 
     // Befehle: Beschreibung in der Hilfe, Aufruf, Arbeitszeile
     desc_help: "Zeigt alle Befehle",
@@ -93,6 +94,7 @@ window.STRINGS = {
     ],
     status_active: "ACTIVE",
     status_dev: "IN DEVELOPMENT",
+    status_released: "RELEASED",
 
     desc_help: "Shows all commands",
     desc_whoami: "Who I am",

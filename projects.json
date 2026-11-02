@@ -4,7 +4,7 @@
     "url": "https://rezondes.github.io/SurvivorsForge/",
     "repo": "https://github.com/Rezondes/SurvivorsForge",
     "stack": ["Rust", "Slint", "axum", "Postgres", "htmx"],
-    "status": "dev",
+    "status": "released",
     "description": {
       "de": "Addon-Manager für Azeroth Survivors, eine private World-of-Warcraft-1.12.1-Instanz, in der Art von CurseForge. Ersteller veröffentlichen Addons aus GitHub, jedes Release wird auf schädlichen Code gescannt und von Admins geprüft. Launcher für Windows, Linux und Steam Deck, dazu Website, API und Scanner.",
       "en": "Addon manager for Azeroth Survivors, a private World of Warcraft 1.12.1 instance, in the spirit of CurseForge. Creators publish their addons from GitHub, every release is scanned for harmful code and reviewed by admins. Launcher for Windows, Linux and Steam Deck, plus website, API and scanner."
@@ -15,7 +15,7 @@
     "url": "https://rezondes.github.io/OpenVoiceSpeak/",
     "repo": "https://github.com/Rezondes/OpenVoiceSpeak",
     "stack": ["C#", ".NET", "Docker", "Opus", "TLS", "AES-GCM"],
-    "status": "dev",
+    "status": "released",
     "description": {
       "de": "Selbst hostbarer Voice-Chat in der Art von Mumble oder TeamSpeak. Ein Server, mehrere Channels, serverweites Rechtesystem, Channel-Linking und Identität per Schlüsselpaar statt Accounts. Sprache als Opus über verschlüsseltes UDP, Server im Docker-Container, Client unter Windows.",
       "en": "Self-hosted voice chat in the style of Mumble or TeamSpeak. One server, several channels, a server-wide permission system, channel linking and identity by key pair instead of accounts. Voice as Opus over encrypted UDP, server in a Docker container, client on Windows."
@@ -25,7 +25,7 @@
     "name": "RezondesStreamTools",
     "repo": "https://github.com/Rezondes/RezondesStreamTools",
     "stack": ["TypeScript", "React", "Vite", "Rust", "Docker"],
-    "status": "dev",
+    "status": "released",
     "description": {
       "de": "Werkzeuge für Streamer: Browserquellen für OBS, ein Dashboard und eine Befehlsseite für Zuschauer, im Look des gewählten Themes. Server in Rust für mehrere Streamer mit Twitch-Anmeldung, allen Events, verschlüsselten Profilen und Backups.",
       "en": "Tools for streamers: browser sources for OBS, a dashboard and a command page for viewers, in the look of the chosen theme. Rust server for several streamers with Twitch login, all events, encrypted profiles and backups."
@@ -36,7 +36,7 @@
     "url": "https://rezondes.github.io/PersonalEinsatzPlanung/",
     "repo": "https://github.com/Rezondes/PersonalEinsatzPlanung",
     "stack": ["TypeScript", "IndexedDB"],
-    "status": "dev",
+    "status": "active",
     "description": {
       "de": "Web-App zur digitalen Personaleinsatzplanung für kleine Einzelhandelsfilialen. Wochen- und Monatsplanung, automatische Prüfung nach ArbZG, Urlaubs- und Krankheitsverwaltung, Druckexport. Ohne Server: alle Daten bleiben lokal im Browser.",
       "en": "Web app for staff scheduling in small retail stores. Weekly and monthly planning, automatic checks against German working time law (ArbZG), vacation and sick leave tracking, print export. No server: all data stays local in the browser."
@@ -47,7 +47,7 @@
     "url": "https://rezondes.github.io/ClaudeDeck/",
     "repo": "https://github.com/Rezondes/ClaudeDeck",
     "stack": ["TypeScript", "Stream Deck SDK", "Claude Code"],
-    "status": "dev",
+    "status": "active",
     "description": {
       "de": "Zeigt auf dem Elgato Stream Deck, was Claude Code gerade macht, und erlaubt oder lehnt Anfragen per Tastendruck ab.",
       "en": "Shows on the Elgato Stream Deck what Claude Code is doing and allows or denies its requests at the press of a key."
