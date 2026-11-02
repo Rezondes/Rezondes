@@ -313,7 +313,8 @@ function showProject([arg]) {
 
 function openProject([arg]) {
   const p = findProject(arg);
-  if (!p?.url) return error(`Projekt nicht gefunden: ${arg ?? ""}. Liste mit 'projects'.`);
+  if (!p) return error(`Projekt nicht gefunden: ${arg ?? ""}. Liste mit 'projects'.`);
+  if (!p.url) return line(`>> ${p.name} hat keine Website. Quellcode: ${p.repo}`);
   window.open(p.url, "_blank", "noopener");
   const row = line("> ÖFFNE ");
   row.append(link(p.url, p.url));

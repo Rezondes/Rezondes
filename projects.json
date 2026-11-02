@@ -1,11 +1,34 @@
 [
   {
+    "name": "SurvivorsForge",
+    "url": "https://rezondes.github.io/SurvivorsForge/",
+    "repo": "https://github.com/Rezondes/SurvivorsForge",
+    "stack": ["Rust", "Slint", "axum", "Postgres", "htmx"],
+    "status": "IN ENTWICKLUNG",
+    "description": "Addon-Manager für Azeroth Survivors, eine private World-of-Warcraft-1.12.1-Instanz, in der Art von CurseForge. Ersteller veröffentlichen Addons aus GitHub, jedes Release wird auf schädlichen Code gescannt und von Admins geprüft. Launcher für Windows, Linux und Steam Deck, dazu Website, API und Scanner."
+  },
+  {
     "name": "OpenVoiceSpeak",
     "url": "https://rezondes.github.io/OpenVoiceSpeak/",
     "repo": "https://github.com/Rezondes/OpenVoiceSpeak",
     "stack": ["C#", ".NET", "Docker", "Opus", "TLS", "AES-GCM"],
     "status": "IN ENTWICKLUNG",
     "description": "Selbst hostbarer Voice-Chat in der Art von Mumble oder TeamSpeak. Ein Server, mehrere Channels, serverweites Rechtesystem, Channel-Linking und Identität per Schlüsselpaar statt Accounts. Sprache als Opus über verschlüsseltes UDP, Server im Docker-Container, Client unter Windows."
+  },
+  {
+    "name": "RezondesStreamTools",
+    "repo": "https://github.com/Rezondes/RezondesStreamTools",
+    "stack": ["TypeScript", "React", "Vite", "Rust", "Docker"],
+    "status": "IN ENTWICKLUNG",
+    "description": "Werkzeuge für Streamer: Browserquellen für OBS, ein Dashboard und eine Befehlsseite für Zuschauer, im Look des gewählten Themes. Server in Rust für mehrere Streamer mit Twitch-Anmeldung, allen Events, verschlüsselten Profilen und Backups."
+  },
+  {
+    "name": "PersonalEinsatzPlanung",
+    "url": "https://rezondes.github.io/PersonalEinsatzPlanung/",
+    "repo": "https://github.com/Rezondes/PersonalEinsatzPlanung",
+    "stack": ["TypeScript", "IndexedDB"],
+    "status": "IN ENTWICKLUNG",
+    "description": "Web-App zur digitalen Personaleinsatzplanung für kleine Einzelhandelsfilialen. Wochen- und Monatsplanung, automatische Prüfung nach ArbZG, Urlaubs- und Krankheitsverwaltung, Druckexport. Ohne Server: alle Daten bleiben lokal im Browser."
   },
   {
     "name": "ClaudeDeck",
@@ -16,16 +39,8 @@
     "description": "Zeigt auf dem Elgato Stream Deck, was Claude Code gerade macht, und erlaubt oder lehnt Anfragen per Tastendruck ab."
   },
   {
-    "name": "PersonalEinsatzPlanung",
-    "url": "https://rezondes.github.io/PersonalEinsatzPlanung",
-    "repo": "https://github.com/Rezondes/PersonalEinsatzPlanung",
-    "stack": ["TypeScript", "IndexedDB"],
-    "status": "IN ENTWICKLUNG",
-    "description": "Web-App zur digitalen Personaleinsatzplanung für kleine Einzelhandelsfilialen. Wochen- und Monatsplanung, automatische Prüfung nach ArbZG, Urlaubs- und Krankheitsverwaltung, Druckexport. Ohne Server: alle Daten bleiben lokal im Browser."
-  },
-  {
     "name": "Rezondes Enhanced Arma",
-    "url": "https://rea.rezondes.net",
+    "url": "https://rea.rezondes.net/",
     "repo": "https://github.com/Rezondes-Enhanced-Arma",
     "stack": ["Enforce Script", "Enfusion", "Arma Reforger Workbench"],
     "status": "AKTIV",
