@@ -26,7 +26,11 @@ const skills = [
   ["--ops", ["Docker", "Linux (Ubuntu, Debian)"]],
 ];
 
-const contact = [["GITHUB", "https://github.com/Rezondes"]];
+// [Schlüssel, Anzeige, Link]
+const contact = [
+  ["GITHUB", "github.com/Rezondes", "https://github.com/Rezondes"],
+  ["E-MAIL", "dev@rezondes.net", "mailto:dev@rezondes.net"],
+];
 
 let projects = null;
 const projectsLoaded = fetch("projects.json", { cache: "no-cache" })
@@ -337,7 +341,7 @@ const commands = {
   projects: { desc: "Listet alle Projekte", busy: "DURCHSUCHE /projects", run: listProjects },
   project: { usage: "project <nr>", desc: "Details zu einem Projekt", busy: "LADE PROJEKT", run: showProject },
   open: { usage: "open <nr>", desc: "Öffnet ein Projekt im neuen Tab", run: openProject },
-  contact: { desc: "Kontaktwege", busy: "LADE KONTAKTE", run: () => contact.forEach(([k, v]) => dossier(k, v.replace(/^https:\/\//, ""), v)) },
+  contact: { desc: "Kontaktwege", busy: "LADE KONTAKTE", run: () => contact.forEach(([k, label, href]) => dossier(k, label, href)) },
   matrix: {
     usage: "matrix [on|off]",
     desc: "Matrix-Regen an oder aus",
