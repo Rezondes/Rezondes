@@ -8,16 +8,29 @@ const rig = $("#rig");
 const screen = $("#screen");
 const PROMPT = "root@rezondes:~$";
 
-// --- Inhalte (Projekte kommen aus projects.json) -----------------------------
-const profile = [
-  ["NAME", "Rezondes"],
-  ["ROLLE", "Systems Analyst und Application Developer"],
-  ["FOKUS", "C# / .NET"],
-  ["PROGRAMMIERT", "seit 2019"],
-  ["AUSBILDUNG", "Fachinformatiker Anwendungsentwicklung, abgeschlossen 2022"],
-  ["MOTTO", "Just a dude who loves programming."],
-];
+// --- Sprache (Texte in i18n.js) ----------------------------------------------------
+// Gewählte Sprache aus dem Browser-Speicher, sonst aus der Browsersprache: Deutsch oder Englisch
+let lang = (() => {
+  try {
+    const saved = localStorage.getItem("lang");
+    if (saved in STRINGS) return saved;
+  } catch {}
+  return (navigator.languages?.[0] ?? navigator.language ?? "").toLowerCase().startsWith("de") ? "de" : "en";
+})();
+const t = key => STRINGS[lang][key];
+const langButton = $("#lang-key");
 
+function applyLang(next) {
+  lang = next;
+  try { localStorage.setItem("lang", lang); } catch {}
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(node => { node.textContent = t(node.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-label]").forEach(node => node.setAttribute("aria-label", t(node.dataset.i18nLabel)));
+  langButton.dataset.cmd = `lang ${lang === "de" ? "en" : "de"}`;
+}
+applyLang(lang);
+
+// --- Inhalte (Projekte kommen aus projects.json, Profil aus i18n.js) ----------------
 const skills = [
   ["--core", ["C#", ".NET", "ASP.NET Core", "Blazor", "Entity Framework"]],
   ["--data", ["MySQL"]],
@@ -284,99 +297,109 @@ function findProject(arg) {
   return projects.find(p => p.name.toLowerCase().startsWith(name));
 }
 
+const projectStatus = p => t(`status_${p.status}`) ?? "";
+
 function listProjects() {
-  if (!projects) return error("Projekte konnten nicht geladen werden.");
+  if (!projects) return error(t("err_projects_load"));
   line(`  NR  ${"NAME".padEnd(24)}STATUS`, "muted");
   projects.forEach((p, i) => {
-    const row = print(el("button", "row-btn", `${String(i + 1).padStart(2, "0")}  ${p.name.toUpperCase().padEnd(24)}${p.status ?? ""}`));
+    const row = print(el("button", "row-btn", `${String(i + 1).padStart(2, "0")}  ${p.name.toUpperCase().padEnd(24)}${projectStatus(p)}`));
     row.type = "button";
     row.addEventListener("click", () => enqueue(() => typeCommand(`project ${i + 1}`)));
   });
-  line(`GESAMT: ${projects.length}`, "muted");
-  line(">> Details mit 'project <nr>' oder Zeile anklicken.");
+  line(t("list_total")(projects.length), "muted");
+  line(t("list_hint"));
 }
 
 function showProject([arg]) {
   const p = findProject(arg);
-  if (!p) return error(`Projekt nicht gefunden: ${arg ?? ""}. Liste mit 'projects'.`);
+  if (!p) return error(t("err_project")(arg ?? ""));
   line(`+== ${p.name.toUpperCase()} ==`);
-  dossier("STATUS", p.status);
+  dossier("STATUS", projectStatus(p));
   dossier("STACK", p.stack?.join(", "));
   dossier("WEB", p.url, p.url);
   dossier("CODE", p.repo, p.repo);
-  line(p.description);
+  line(p.description[lang]);
   const actions = el("div", "actions");
-  if (p.url) actions.append(link(p.url, "[ ÖFFNEN ]", "btn primary"));
-  if (p.repo) actions.append(link(p.repo, "[ QUELLCODE ]", "btn"));
+  if (p.url) actions.append(link(p.url, t("btn_open"), "btn primary"));
+  if (p.repo) actions.append(link(p.repo, t("btn_source"), "btn"));
   print(actions);
 }
 
 function openProject([arg]) {
   const p = findProject(arg);
-  if (!p) return error(`Projekt nicht gefunden: ${arg ?? ""}. Liste mit 'projects'.`);
-  if (!p.url) return line(`>> ${p.name} hat keine Website. Quellcode: ${p.repo}`);
+  if (!p) return error(t("err_project")(arg ?? ""));
+  if (!p.url) return line(t("no_website")(p.name, p.repo));
   window.open(p.url, "_blank", "noopener");
-  const row = line("> ÖFFNE ");
+  const row = line(t("opening"));
   row.append(link(p.url, p.url));
 }
 
+const onOff = on => t(on ? "state_on" : "state_off");
+
+// Beschreibung (desc_<name>), Aufruf (usage_<name>) und Arbeitszeile (busy_<name>) stehen in i18n.js
 const commands = {
   help: {
-    desc: "Zeigt alle Befehle",
     run() {
-      line("VERFÜGBARE BEFEHLE:");
-      for (const [name, cmd] of Object.entries(commands)) line(`  ${(cmd.usage ?? name).padEnd(18)}${cmd.desc}`);
-      line(">> Pfeiltasten blättern im Verlauf, Tab ergänzt Befehle.", "muted");
-      if (wide.matches) line(">> Neben dem Bildschirm ziehen dreht den Monitor, Doppelklick stellt ihn gerade.", "muted");
+      line(t("help_title"));
+      for (const name of Object.keys(commands)) {
+        const desc = t(`desc_${name}`);
+        line(`  ${(t(`usage_${name}`) ?? commands[name].usage ?? name).padEnd(18)}${typeof desc === "function" ? desc(tilt.MAX) : desc}`);
+      }
+      line(t("help_keys"), "muted");
+      if (wide.matches) line(t("help_drag"), "muted");
     },
   },
-  whoami: { desc: "Wer ich bin", busy: "LESE AKTE", run: () => profile.forEach(([k, v]) => dossier(k, v)) },
+  whoami: { busy: true, run: () => t("profile").forEach(([k, v]) => dossier(k, v)) },
   skills: {
-    desc: "Was ich kann",
-    busy: "LESE skills.cfg",
+    busy: true,
     run() {
       line("# skills.cfg", "muted");
       for (const [param, list] of skills) line(`[X] ${param}=${list.map(s => `"${s}"`).join(" ")}`);
     },
   },
-  projects: { desc: "Listet alle Projekte", busy: "DURCHSUCHE /projects", run: listProjects },
-  project: { usage: "project <nr>", desc: "Details zu einem Projekt", busy: "LADE PROJEKT", run: showProject },
-  open: { usage: "open <nr>", desc: "Öffnet ein Projekt im neuen Tab", run: openProject },
-  contact: { desc: "Kontaktwege", busy: "LADE KONTAKTE", run: () => contact.forEach(([k, label, href]) => dossier(k, label, href)) },
+  projects: { busy: true, run: listProjects },
+  project: { usage: "project <nr>", busy: true, run: showProject },
+  open: { usage: "open <nr>", run: openProject },
+  contact: { busy: true, run: () => contact.forEach(([k, label, href]) => dossier(k, label, href)) },
+  lang: {
+    usage: "lang [de|en]",
+    run([arg]) {
+      const next = arg ? arg.toLowerCase() : lang === "de" ? "en" : "de";
+      if (!(next in STRINGS)) return error(t("err_lang"));
+      applyLang(next);
+      line(t("lang_set"));
+    },
+  },
   matrix: {
     usage: "matrix [on|off]",
-    desc: "Matrix-Regen an oder aus",
     run([arg]) {
       const on = arg ? arg === "on" : !rain.running;
       on ? rain.on() : rain.off();
-      line(`> MATRIX: ${on ? "AN" : "AUS"}`);
+      line(`> MATRIX: ${onOff(on)}`);
     },
   },
   crt: {
     usage: "crt [on|off]",
-    desc: "Röhrenmonitor-Effekt an oder aus",
     run([arg]) {
-      if (!wide.matches) return line(">> Nur auf Desktop und Tablet verfügbar.");
+      if (!wide.matches) return line(t("wide_only"));
       const on = arg ? arg === "on" : !crt.on;
       crt.set(on);
-      line(`> CRT: ${on ? "AN" : "AUS"}`);
+      line(`> CRT: ${onOff(on)}`);
     },
   },
   rotate: {
-    usage: "rotate <grad>",
-    desc: `Dreht den Monitor (-${tilt.MAX} bis ${tilt.MAX}, 0 = gerade)`,
     run([arg]) {
-      if (!wide.matches) return line(">> Nur auf Desktop und Tablet verfügbar.");
+      if (!wide.matches) return line(t("wide_only"));
       const deg = Number(arg ?? 0);
-      if (!Number.isFinite(deg)) return error("Winkel muss eine Zahl sein, zum Beispiel 'rotate -20'.");
+      if (!Number.isFinite(deg)) return error(t("err_angle"));
       tilt.set(deg);
-      line(`> WINKEL: ${Math.max(-tilt.MAX, Math.min(tilt.MAX, deg))}°`);
+      line(t("angle")(Math.max(-tilt.MAX, Math.min(tilt.MAX, deg))));
     },
   },
-  clear: { desc: "Leert den Bildschirm", run: () => out.replaceChildren() },
+  clear: { run: () => out.replaceChildren() },
   reboot: {
-    desc: "Startet das Terminal neu",
-    busy: "FAHRE SYSTEM HERUNTER",
+    busy: true,
     async run() {
       await powerOnScreen();
       await startTerminal();
@@ -384,7 +407,7 @@ const commands = {
   },
 };
 
-const aliases = { ls: "projects", cat: "project", "?": "help", cls: "clear", about: "whoami" };
+const aliases = { ls: "projects", cat: "project", "?": "help", cls: "clear", about: "whoami", language: "lang", sprache: "lang" };
 
 const history = [];
 let historyPos = 0;
@@ -398,8 +421,8 @@ async function run(raw) {
   const [name, ...args] = text.split(/\s+/);
   const key = name.toLowerCase();
   const cmd = commands[aliases[key] ?? key];
-  if (!cmd) return error(`Befehl nicht gefunden: ${name}. Alle Befehle mit 'help'.`);
-  if (cmd.busy) await busy(cmd.busy);
+  if (!cmd) return error(t("err_command")(name));
+  if (cmd.busy) await busy(t(`busy_${aliases[key] ?? key}`));
   const before = out.children.length;
   const result = cmd.run(args);
   // Befehle mit eigenem Ablauf (reboot) zeichnen selbst; alle anderen werden zeilenweise gedruckt
@@ -459,7 +482,7 @@ async function boot() {
     "(C) 2019-2026 REZONDES SYSTEMS",
     "",
     "CPU: C# / .NET RUNTIME ............ OK",
-    "MEM: 640K ......................... GENUG",
+    t("bios_mem"),
     "DISK: /home/rezondes/projects ..... OK",
   ];
   for (const text of lines) {
@@ -468,12 +491,12 @@ async function boot() {
   }
   const bar = line();
   for (let i = 0; i <= 20; i++) {
-    bar.textContent = `LADE SYSTEM [${"#".repeat(i)}${".".repeat(20 - i)}] ${i * 5}%`;
+    bar.textContent = `${t("bios_loading")} [${"#".repeat(i)}${".".repeat(20 - i)}] ${i * 5}%`;
     await sleep(55);
   }
   await projectsLoaded;
-  line(`PROJEKTE GEFUNDEN: ${projects ? projects.length : 0}`);
-  line("SYSTEM BEREIT");
+  line(t("bios_found")(projects ? projects.length : 0));
+  line(t("bios_ready"));
   await sleep(600);
 }
 
@@ -504,7 +527,7 @@ async function startTerminal() {
   await typeCommand("whoami");
   await sleep(700);
   await typeCommand("projects");
-  line(">> Tippe 'help' für alle Befehle oder nutze die Tasten unten.");
+  line(t("start_hint"));
   setLocked(false);
   if (matchMedia("(pointer: fine)").matches) input.focus();
 }
